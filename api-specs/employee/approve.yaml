@@ -1,0 +1,90 @@
+specVersion: "1.0"
+
+feature:
+  name: employee
+  basePackage: com.example.hr.employee
+
+api:
+  name: approveEmployee
+  method: POST
+  path: /api/v1/employees/{employeeId}/approve
+  summary: 사원 승인
+  operation: ACTION
+
+sap:
+  odataVersion: V4
+  servicePath: /sap/opu/odata4/example/employee/srvd/sap/employee/0001
+  entitySet: Employees
+  httpMethod: POST
+
+  keys:
+    - parameter: employeeId
+      sapField: EmployeeId
+      edmType: Edm.String
+
+  action:
+    name: Approve
+    binding: BOUND
+    qualifiedName: ExampleService.Approve
+    returnType: ENTITY
+
+  requiresCsrf: true
+
+webRequest:
+  enabled: true
+  dtoName: EmployeeApproveRequest
+  binding: BODY
+  fields:
+    - name: approvalComment
+      type: String
+      required: false
+      validation:
+        maxLength: 500
+
+sapRequest:
+  enabled: true
+  dtoName: SapEmployeeApproveRequest
+  fields:
+    - name: approvalComment
+      sapField: ApprovalComment
+      source: approvalComment
+      type: String
+
+sapResponse:
+  enabled: true
+  dtoName: SapEmployeeResponse
+  fields:
+    - { name: employeeId, sapField: EmployeeId, type: String }
+    - { name: employeeName, sapField: EmployeeName, type: String }
+    - { name: departmentCode, sapField: DepartmentCode, type: String }
+
+webResponse:
+  dtoName: EmployeeResponse
+  type: OBJECT
+  fields:
+    - { name: employeeId, source: employeeId, type: String }
+    - { name: employeeName, source: employeeName, type: String }
+    - { name: departmentCode, source: departmentCode, type: String }
+
+converter:
+  name: EmployeeConverter
+  package: dto.converter
+  mappings:
+    - method: toSapApproveRequest
+      source: EmployeeApproveRequest
+      target: SapEmployeeApproveRequest
+
+    - method: toWebResponse
+      source: SapEmployeeResponse
+      target: EmployeeResponse
+
+swagger:
+  enabled: true
+  tag: Employee
+  apiDocName: EmployeeApiDoc
+
+tests:
+  controller: true
+  service: true
+  repository: true
+  converter: true

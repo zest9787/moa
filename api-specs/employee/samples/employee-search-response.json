@@ -1,0 +1,10 @@
+{
+  "data": [
+    {
+      "EmployeeId": "222221c",
+      "EmployeeName": "홍길동",
+      "DepartmentCode": "X001",
+      "HireDate": "2023-01-01"
+    }
+  ]
+}

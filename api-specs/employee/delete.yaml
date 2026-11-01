@@ -1,0 +1,67 @@
+specVersion: "1.0"
+
+feature:
+  name: employee
+  basePackage: com.example.hr.employee
+
+api:
+  name: deleteEmployee
+  method: DELETE
+  path: /api/v1/employees/{employeeId}
+  summary: 사원 삭제
+  operation: DELETE
+
+sap:
+  odataVersion: V4
+  servicePath: /sap/opu/odata4/example/employee/srvd/sap/employee/0001
+  entitySet: Employees
+  httpMethod: DELETE
+
+  keys:
+    - parameter: employeeId
+      sapField: EmployeeId
+      edmType: Edm.String
+
+  etag:
+    enabled: true
+    source: READ_BEFORE_DELETE
+    header: If-Match
+
+  requiresCsrf: true
+
+webRequest:
+  enabled: true
+  dtoName: EmployeeDeleteRequest
+  binding: PATH
+  fields:
+    - name: employeeId
+      type: String
+      required: true
+
+sapRequest:
+  enabled: false
+
+sapResponse:
+  enabled: false
+
+webResponse:
+  type: EMPTY
+  useCommonApiResponse: true
+
+converter:
+  enabled: false
+
+swagger:
+  enabled: true
+  tag: Employee
+  apiDocName: EmployeeApiDoc
+
+tests:
+  controller: true
+  service: true
+  repository: true
+  converter: false
+  cases:
+    - deleteSuccess
+    - employeeNotFound
+    - etagConflict

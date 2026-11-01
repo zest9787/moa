@@ -1,0 +1,102 @@
+specVersion: "1.0"
+
+feature:
+  name: employee
+  basePackage: com.example.hr.employee
+
+api:
+  name: createEmployee
+  method: POST
+  path: /api/v1/employees
+  summary: 사원 등록
+  operation: CREATE
+
+sap:
+  odataVersion: V4
+  servicePath: /sap/opu/odata4/example/employee/srvd/sap/employee/0001
+  entitySet: Employees
+  httpMethod: POST
+  requiresCsrf: true
+
+webRequest:
+  enabled: true
+  dtoName: EmployeeCreateRequest
+  binding: BODY
+  fields:
+    - name: employeeName
+      type: String
+      required: true
+      validation:
+        notBlank: true
+        maxLength: 100
+
+    - name: departmentCode
+      type: String
+      required: true
+      validation:
+        notBlank: true
+
+    - name: hireDate
+      type: LocalDate
+      required: true
+      validation:
+        notNull: true
+
+sapRequest:
+  enabled: true
+  dtoName: SapEmployeeCreateRequest
+  fields:
+    - name: employeeName
+      sapField: EmployeeName
+      source: employeeName
+      type: String
+
+    - name: departmentCode
+      sapField: DepartmentCode
+      source: departmentCode
+      type: String
+
+    - name: hireDate
+      sapField: HireDate
+      source: hireDate
+      type: LocalDate
+
+sapResponse:
+  dtoName: SapEmployeeResponse
+  fields:
+    - { name: employeeId, sapField: EmployeeId, type: String }
+    - { name: employeeName, sapField: EmployeeName, type: String }
+    - { name: departmentCode, sapField: DepartmentCode, type: String }
+    - { name: hireDate, sapField: HireDate, type: LocalDate }
+
+webResponse:
+  dtoName: EmployeeResponse
+  type: OBJECT
+  fields:
+    - { name: employeeId, source: employeeId, type: String }
+    - { name: employeeName, source: employeeName, type: String }
+    - { name: departmentCode, source: departmentCode, type: String }
+    - { name: hireDate, source: hireDate, type: LocalDate }
+
+converter:
+  name: EmployeeConverter
+  package: dto.converter
+  mappings:
+    - method: toSapCreateRequest
+      source: EmployeeCreateRequest
+      target: SapEmployeeCreateRequest
+
+    - method: toWebResponse
+      source: SapEmployeeResponse
+      target: EmployeeResponse
+
+swagger:
+  enabled: true
+  tag: Employee
+  apiDocName: EmployeeApiDoc
+
+tests:
+  controller: true
+  service: true
+  repository: true
+  converter: true

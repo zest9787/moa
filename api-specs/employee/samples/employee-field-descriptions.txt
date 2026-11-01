@@ -1,0 +1,4 @@
+EmployeeID 사번[...]
+EmployeeName 이름[...]
+DepartmentCode 부서코드[...]
+HireDate 입사일자[...]

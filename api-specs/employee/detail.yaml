@@ -1,0 +1,86 @@
+# 응답 샘플: samples/employee-detail-response.json (예시 데이터, 실제 SAP 계약 미검증)
+# 필드 설명 원본: samples/employee-field-descriptions.txt
+# 단일 키 조회이므로 샘플은 value 배열 없이 단일 객체다. 목록 샘플은 search.yaml 참고.
+# description은 [...] 제거 후 저장한다. HireDate는 설명이 없는 필드 예시다.
+# OData 응답 DTO는 필드 뒤 // 설명, Web DTO는 @Schema(description = "...")를 사용한다.
+# 설명이 없으면 주석과 description 어노테이션을 생략한다.
+specVersion: "1.0"
+
+feature:
+  name: employee
+  basePackage: net.lucid.moa.feature.employee
+
+api:
+  name: getEmployee
+  method: GET
+  path: /api/v1/employees/{employeeId}
+  summary: 사원 상세 조회
+  operation: READ_ONE
+
+sap:
+  odataVersion: V4
+  servicePath: /sap/opu/odata4/example/employee/srvd/sap/employee/0001
+  entitySet: Employees
+  httpMethod: GET
+
+  keys:
+    - parameter: employeeId
+      sapField: EmployeeId
+      edmType: Edm.String
+
+  query:
+    select:
+      - EmployeeId
+      - EmployeeName
+      - DepartmentCode
+      - HireDate
+
+webRequest:
+  enabled: true
+  dtoName: EmployeeDetailRequest
+  binding: PATH
+  fields:
+    - name: employeeId
+      type: String
+      required: true
+      description: 사원번호
+
+sapRequest:
+  enabled: false
+
+sapResponse:
+  dtoName: ODataEmployeeResponse
+  collection: false
+  fields:
+    - { name: employeeId, sapField: EmployeeId, type: String, description: 사원번호 }
+    - { name: employeeName, sapField: EmployeeName, type: String, description: 사원명 }
+    - { name: departmentCode, sapField: DepartmentCode, type: String, description: 부서 코드 }
+    - { name: hireDate, sapField: HireDate, type: LocalDate }
+
+webResponse:
+  dtoName: EmployeeResponse
+  type: OBJECT
+  fields:
+    - { name: employeeId, source: employeeId, type: String, description: 사원번호 }
+    - { name: employeeName, source: employeeName, type: String, description: 사원명 }
+    - { name: departmentCode, source: departmentCode, type: String, description: 부서 코드 }
+    - { name: hireDate, source: hireDate, type: LocalDate }
+
+converter:
+  name: EmployeeConverter
+  package: dto.converter
+  mappings:
+    - method: toWebResponse
+      source: ODataEmployeeResponse
+      target: EmployeeResponse
+
+swagger:
+  enabled: true
+  tag: Employee
+  apiDocName: EmployeeApiDoc
+
+tests:
+  controller: true
+  service: true
+  repository: true
+  converter: true

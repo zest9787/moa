@@ -1,0 +1,95 @@
+specVersion: "1.0"
+
+feature:
+  name: employee
+  basePackage: com.example.hr.employee
+
+api:
+  name: updateEmployee
+  method: PATCH
+  path: /api/v1/employees/{employeeId}
+  summary: 사원 정보 수정
+  operation: UPDATE
+
+sap:
+  odataVersion: V4
+  servicePath: /sap/opu/odata4/example/employee/srvd/sap/employee/0001
+  entitySet: Employees
+  httpMethod: PATCH
+
+  keys:
+    - parameter: employeeId
+      sapField: EmployeeId
+      edmType: Edm.String
+
+  etag:
+    enabled: true
+    source: READ_BEFORE_UPDATE
+    header: If-Match
+
+  requiresCsrf: true
+
+webRequest:
+  enabled: true
+  dtoName: EmployeeUpdateRequest
+  binding: BODY
+  fields:
+    - name: employeeName
+      type: String
+      required: false
+
+    - name: departmentCode
+      type: String
+      required: false
+
+sapRequest:
+  enabled: true
+  dtoName: SapEmployeeUpdateRequest
+  fields:
+    - name: employeeName
+      sapField: EmployeeName
+      source: employeeName
+      type: String
+
+    - name: departmentCode
+      sapField: DepartmentCode
+      source: departmentCode
+      type: String
+
+patch:
+  mode: PARTIAL
+  distinguishMissingAndNull: false
+  missingField: OMIT
+  explicitNull: OMIT
+  presenceAwareMapping: DISABLED
+
+sapResponse:
+  enabled: false
+
+webResponse:
+  type: EMPTY
+  useCommonApiResponse: true
+
+converter:
+  name: EmployeeConverter
+  package: dto.converter
+  mappings:
+    - method: toSapUpdateRequest
+      source: EmployeeUpdateRequest
+      target: SapEmployeeUpdateRequest
+
+swagger:
+  enabled: true
+  tag: Employee
+  apiDocName: EmployeeApiDoc
+
+tests:
+  controller: true
+  service: true
+  repository: true
+  converter: true
+  cases:
+    - omittedField
+    - explicitNull
+    - updatedValue
+    - etagConflict
